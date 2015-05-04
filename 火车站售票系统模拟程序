@@ -1,0 +1,63 @@
+//火车站售票系统模拟程序
+#include <windows.h>
+#include <iostream>
+using namespace std;
+
+DWORD WINAPI SaleFunc1( LPVOID lpParameter );
+DWORD WINAPI SaleFunc2( LPVOID lpParameter );
+
+int index = 0;
+int tickets = 100;
+HANDLE hMutex;
+
+void main()
+{
+	HANDLE hThread1;
+	HANDLE hThread2;
+	
+	//创建互斥对象
+	hMutex = CreateMutex( NULL, FALSE, NULL );
+
+	//创建线程
+	hThread1 = CreateThread( NULL, 0, SaleFunc1, NULL, 0, NULL );
+	hThread2 = CreateThread( NULL, 0, SaleFunc2, NULL, 0, NULL );
+	CloseHandle( hThread1 );
+	CloseHandle( hThread2 );
+	ReleaseMutex( hMutex );
+	Sleep( 2000 );
+}
+
+DWORD WINAPI SaleFunc1( LPVOID lpParameter )
+{
+	//WaitForSingleObject( hMutex, INFINITE );
+	while( TRUE )
+	{
+		WaitForSingleObject( hMutex, INFINITE );//请求互斥对象
+		if( tickets > 0 )
+		{
+			Sleep( 10 );
+			cout<<"thread1 sell ticket : "<<tickets--<<endl;
+		}
+		else
+			break;
+		ReleaseMutex( hMutex );//释放互斥对象
+	}
+	return 0;
+}
+
+DWORD WINAPI SaleFunc2( LPVOID lpParameter )
+{
+	while ( TRUE )
+	{
+		WaitForSingleObject( hMutex, INFINITE );//请求互斥对象
+		if( tickets > 0 )
+		{
+			Sleep( 10 );
+			cout<<"thread2 sell ticket : "<<tickets--<<endl;
+		}
+		else
+			break;
+		ReleaseMutex( hMutex );//释放互斥对象
+	}
+	return 0;
+}
