@@ -1,0 +1,26 @@
+//简单多线程
+#include <windows.h>
+#include <iostream>
+
+DWORD WINAPI Fun1Proc( LPVOID lpParameter );//线程入口函数
+int index = 0;	//定义一个全局变量
+void main()
+{
+	using std::cout;
+	using std::endl;
+	HANDLE hThread1;
+	hThread1 = CreateThread( NULL, 0, Fun1Proc, NULL, 0, NULL );//创建一个新线程
+	CloseHandle( hThread1 );	//调用 CloseHandle 函数并没有中止新创建的线程，只是表示在
+								//主线程中对新创建的线程的引用不感兴趣，因此将它关闭。
+								//另一方面，当关闭该句柄时，系统会递减该线程内核对象的使用记数
+	while( index++ < 1000 )
+		cout<<"main thread is running"<<endl;
+	Sleep( 10 );//暂停主线程运行
+}
+
+DWORD WINAPI Fun1Proc( LPVOID lpParameter )
+{
+	while( index++ < 1000 )
+		std::cout<<"thread1 is running"<<std::endl;
+	return 0;
+}
